@@ -22,7 +22,7 @@ def get_current_time(timezone: str):
 # --- STREAMLIT UI ---
 st.set_page_config(page_title="Reliable Time Bot", page_icon="🕒")
 st.title("🕒 Ultimate City Time Bot")
-st.caption("Using Gemini 1.5 Flash + Internal Python Clock (No external API lag)")
+
 
 if "GEMINI_API_KEY" not in st.secrets:
     st.error("Please add GEMINI_API_KEY to Secrets.")
