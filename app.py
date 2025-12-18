@@ -8,22 +8,24 @@ def get_current_time(timezone: str):
     """
     Fetches the current date and time for a given IANA timezone.
     Args:
-        timezone: The IANA timezone string (e.g., 'America/New_York', 'Europe/London', 'Asia/Tokyo').
+        timezone: The IANA timezone string (e.g., 'America/New_York', 'Europe/London', 'Asia/Karachi').
     """
     try:
-        # Public API - No key needed
-        url = f"http://worldtimeapi.org/api/timezone/{timezone}"
+        # Switching to TimeAPI.io - it is more stable for Cloud apps
+        url = f"https://timeapi.io/api/Time/current/zone?timeZone={timezone}"
         response = requests.get(url, timeout=10)
         
         if response.status_code == 200:
             data = response.json()
-            # Extracting date and time from the ISO string
-            dt = data.get('datetime', 'Unknown')
+            # TimeAPI.io uses 'dateTime' as the key
+            dt = data.get('dateTime', 'Unknown')
             return f"The current date and time in {timezone} is {dt}."
+        elif response.status_code == 400:
+            return f"Error: '{timezone}' is not a valid IANA timezone name. Please try 'Asia/Karachi'."
         else:
-            return f"Error: Could not find time for '{timezone}'. Please ensure it is a valid IANA timezone."
+            return f"The time service is currently busy (Error {response.status_code}). Please try again."
     except Exception as e:
-        return f"Service error: {str(e)}"
+        return f"Service connection error: {str(e)}"
 
 # 2. Streamlit UI
 st.set_page_config(page_title="No-Key Time Bot", page_icon="🕒")
