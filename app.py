@@ -57,7 +57,7 @@ if prompt := st.chat_input("What's the time in Dubai?"):
         st.markdown(prompt)
 
     with st.chat_message("assistant"):
-        chat = client.chats.create(model='gemini-1.5-flash', config=config)
+        chat = client.chats.create(model='gemini-2.5-flash', config=config)
         response = chat.send_message(prompt)
         st.markdown(response.text)
         st.session_state.messages.append({"role": "assistant", "content": response.text})
