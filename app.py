@@ -4,20 +4,22 @@ from zoneinfo import ZoneInfo
 from google import genai
 from google.genai import types
 
-# --- THE TOOL: No API needed, uses Python's internal database ---
+# --- 1. Tool returns RAW DATA now ---
 def get_current_time(timezone: str):
     """
-    Returns the current time for a given IANA timezone.
-    Args:
-        timezone: The IANA timezone string (e.g., 'Asia/Karachi', 'Asia/Dubai', 'Europe/London').
+    Returns the raw date and time for a given IANA timezone.
     """
     try:
-        # Get time using internal system clock and timezone database
         now = datetime.now(ZoneInfo(timezone))
-        formatted_time = now.strftime("%Y-%m-%d %H:%M:%S")
-        return f"The current date and time in {timezone} is {formatted_time}."
+        # We return a dictionary/JSON-like string so the LLM has to "read" it
+        return {
+            "city_timezone": timezone,
+            "current_time": now.strftime("%I:%M %p"), # e.g., 10:30 PM
+            "current_date": now.strftime("%A, %B %d, %Y"), # e.g., Monday, Dec 18
+            "status": "success"
+        }
     except Exception as e:
-        return f"Error: Could not find timezone '{timezone}'. Please use a valid IANA name."
+        return {"status": "error", "message": str(e)}
 
 # --- STREAMLIT UI ---
 st.set_page_config(page_title="Reliable Time Bot", page_icon="🕒")
@@ -38,7 +40,7 @@ for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
 
-# User Input
+
 if prompt := st.chat_input("What time is it in Dubai?"):
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user"):
