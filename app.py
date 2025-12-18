@@ -41,14 +41,21 @@ for message in st.session_state.messages:
         st.markdown(message["content"])
 
 
-if prompt := st.chat_input("What time is it in Dubai?"):
+if prompt := st.chat_input("What time is it in Karachi?"):
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user"):
         st.markdown(prompt)
 
     with st.chat_message("assistant"):
-        # We tell Gemini exactly how to format the timezone strings
-        sys_instr = "You are a time assistant. Use the get_current_time tool. Always provide the full IANA timezone (e.g., Asia/Dubai, Europe/Paris, America/New_York)."
+        # We tell Gemini to be conversational and NOT repeat the tool verbatim
+        sys_instr = """
+        You are a helpful, conversational weather and time bot. 
+        When you use the 'get_current_time' tool, you will receive raw data. 
+        Your job is to interpret that data and tell the user the time in a 
+        friendly, natural way. 
+        Example: 'It's currently 10:30 PM in Karachi. A beautiful Monday evening!' 
+        Do not just repeat the raw JSON data.
+        """
         
         chat = client.chats.create(
             model='gemini-2.5-flash',
@@ -59,6 +66,7 @@ if prompt := st.chat_input("What time is it in Dubai?"):
         )
         
         try:
+            # Gemini calls the tool, gets the JSON, and then writes a NEW response
             response = chat.send_message(prompt)
             st.markdown(response.text)
             st.session_state.messages.append({"role": "assistant", "content": response.text})
